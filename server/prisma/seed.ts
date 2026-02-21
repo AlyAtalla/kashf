@@ -31,12 +31,12 @@ async function main() {
   await prisma.user.deleteMany({})
 
   const professionals = [
-    { name: 'Dr. Sarah Johnson', specialization: 'Clinical Psychology', location: 'New York, NY' },
-    { name: 'Dr. Michael Chen', specialization: 'Psychiatry', location: 'San Francisco, CA' },
-    { name: 'Dr. Emma Williams', specialization: 'Psychotherapy', location: 'Boston, MA' },
-    { name: 'Dr. James Martinez', specialization: 'Cognitive Behavioral Therapy', location: 'Austin, TX' },
-    { name: 'Dr. Lisa Anderson', specialization: 'Family Therapy', location: 'Seattle, WA' },
-    { name: 'Dr. Robert Taylor', specialization: 'Counseling', location: 'Denver, CO' }
+    { name: 'Dr. Sarah Johnson', specialization: 'Clinical Psychology', location: 'New York, NY', price: 120 },
+    { name: 'Dr. Michael Chen', specialization: 'Psychiatry', location: 'San Francisco, CA', price: 150 },
+    { name: 'Dr. Emma Williams', specialization: 'Psychotherapy', location: 'Boston, MA', price: 100 },
+    { name: 'Dr. James Martinez', specialization: 'Cognitive Behavioral Therapy', location: 'Austin, TX', price: 90 },
+    { name: 'Dr. Lisa Anderson', specialization: 'Family Therapy', location: 'Seattle, WA', price: 110 },
+    { name: 'Dr. Robert Taylor', specialization: 'Counseling', location: 'Denver, CO', price: 85 }
   ]
 
   for (let i = 0; i < professionals.length; i++) {
@@ -60,7 +60,8 @@ async function main() {
         specialization: prof.specialization,
         location: prof.location,
         bio: `Experienced ${prof.specialization.toLowerCase()} professional dedicated to helping patients achieve mental wellness.`,
-        avatarUrl: getAvatarDataUri(prof.name, color)
+        avatarUrl: getAvatarDataUri(prof.name, color),
+        pricePerSession: prof.price
       }
     })
   }

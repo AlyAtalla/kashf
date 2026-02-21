@@ -29,6 +29,7 @@ model Profile {
   specialization String?
   location      String?
   avatarUrl     String?
+  pricePerSession Float?
 }
 
 model Appointment {

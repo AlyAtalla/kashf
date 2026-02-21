@@ -10,6 +10,8 @@ type ProfileData = {
   bio?: string
   specialization?: string
   location?: string
+  avatarUrl?: string
+  pricePerSession?: number
   user?: { id: string; email: string }
 }
 
@@ -20,7 +22,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [editing, setEditing] = useState(false)
-  const [form, setForm] = useState({ name: '', bio: '', specialization: '', location: '' })
+  const [form, setForm] = useState({ name: '', bio: '', specialization: '', location: '', pricePerSession: '' })
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
 
 
@@ -40,7 +42,8 @@ export default function Profile() {
           name: res.name || '',
           bio: res.bio || '',
           specialization: res.specialization || '',
-          location: res.location || ''
+          location: res.location || '',
+          pricePerSession: res.pricePerSession || ''
         })
         if (res.avatarUrl) setAvatarPreview(res.avatarUrl)
       }
@@ -69,7 +72,8 @@ export default function Profile() {
     }
     setLoading(true)
     try {
-      const created = await api.post('/api/profiles', { userId: user.sub, ...form, avatarUrl: avatarPreview })
+      const pricePerSession = form.pricePerSession ? parseFloat(form.pricePerSession) : undefined
+      const created = await api.post('/api/profiles', { userId: user.sub, ...form, pricePerSession, avatarUrl: avatarPreview })
       // Try to refresh profile: prefer returned id, otherwise fetch by user id
       if (created?.id) {
         await fetchProfile(created.id)
@@ -108,11 +112,27 @@ export default function Profile() {
                     📍 {profile.location || 'Location not specified'}
                   </div>
                   {profile.bio && <p className="text-gray-700 leading-relaxed">{profile.bio}</p>}
-                  {isOwner() && (
-                    <button onClick={() => setEditing((s) => !s)} className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
-                      {editing ? '✓ Cancel' : '🔧 Edit Profile'}
-                    </button>
+                  {profile.pricePerSession && !isOwner() && (
+                    <div className="mt-4 inline-block bg-gradient-to-r from-green-100 to-blue-100 border border-green-300 rounded-lg px-4 py-2">
+                      <p className="text-sm font-semibold text-green-800">💰 ${profile.pricePerSession}/session</p>
+                    </div>
                   )}
+                  <div className="mt-6 flex gap-3">
+                    {isOwner() ? (
+                      <button onClick={() => setEditing((s) => !s)} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+                        {editing ? '✓ Cancel' : '🔧 Edit Profile'}
+                      </button>
+                    ) : (
+                      <>
+                        <button onClick={() => alert('Message feature coming soon!')} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition">
+                          💬 Message
+                        </button>
+                        <button onClick={() => alert('Booking feature coming soon!')} className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition">
+                          📅 Book Session
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -167,6 +187,10 @@ export default function Profile() {
                       <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
                       <textarea className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none" rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Tell us about yourself, your experience, and approach..." />
                     </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Price Per Session ($)</label>
+                      <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" type="number" step="0.01" min="0" value={form.pricePerSession} onChange={(e) => setForm({ ...form, pricePerSession: e.target.value })} placeholder="e.g., 75.00" />
+                    </div>
                     <div className="flex gap-3 pt-4">
                       <button type="submit" className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50" disabled={loading}>
                         {loading ? 'Saving...' : '💾 Save Changes'}
@@ -203,6 +227,10 @@ export default function Profile() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
                   <textarea className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Tell us about yourself..." />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Price Per Session ($)</label>
+                  <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" type="number" step="0.01" min="0" value={form.pricePerSession} onChange={(e) => setForm({ ...form, pricePerSession: e.target.value })} placeholder="e.g., 75.00" />
                 </div>
                 <button type="submit" className="w-full px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50" disabled={loading}>
                   {loading ? 'Creating...' : '✅ Create Profile'}

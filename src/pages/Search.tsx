@@ -6,7 +6,7 @@ type UserWithProfile = {
   id: string
   email: string
   role: string
-  profile?: { id: string; name?: string; specialization?: string; location?: string }
+  profile?: { id: string; name?: string; specialization?: string; location?: string; pricePerSession?: number }
 }
 
 export default function Search() {
@@ -64,6 +64,9 @@ export default function Search() {
                 <div className="font-semibold text-gray-900 text-lg">{u.profile?.name || u.email}</div>
                 <div className="text-blue-600 font-medium text-sm">{u.profile?.specialization || 'Mental Health Professional'}</div>
                 <div className="text-sm text-gray-500 mt-1">📍 {u.profile?.location || 'Location not specified'}</div>
+                {u.profile?.pricePerSession && (
+                  <div className="text-sm font-semibold text-green-700 mt-2">💰 ${u.profile.pricePerSession}/session</div>
+                )}
               </div>
               <Link to={`/profile/${u.profile?.id || u.id}`} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition whitespace-nowrap">
                 View
