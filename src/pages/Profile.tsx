@@ -86,86 +86,127 @@ export default function Profile() {
 
   return (
     <div>
-      <h2 className="text-xl font-semibold">Profile</h2>
-      {loading && <div className="mt-2">Loading...</div>}
-      {error && <div className="mt-2 text-red-600">{error}</div>}
+      {loading && <div className="text-center py-12 text-gray-500">Loading profile...</div>}
+      {error && <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg mb-6">{error}</div>}
 
       {profile ? (
-        <div className="mt-4 bg-white p-4 border rounded">
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="text-lg font-semibold">{profile.name || profile.user?.email}</div>
-                  <div className="text-sm text-gray-600">{profile.specialization}</div>
-                  {avatarPreview && (
-                    <img src={avatarPreview} alt="avatar" className="w-24 h-24 rounded-full mt-3 object-cover" />
+        <div className="max-w-3xl">
+          <div className="bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden">
+            <div className="p-8">
+              <div className="flex items-start gap-8 mb-8">
+                <div className="flex-shrink-0">
+                  {avatarPreview ? (
+                    <img src={avatarPreview} alt="avatar" className="w-32 h-32 rounded-full object-cover border-4 border-blue-200" />
+                  ) : (
+                    <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">No image</div>
                   )}
-              <div className="mt-2">{profile.bio}</div>
-              <div className="mt-2 text-sm text-gray-500">{profile.location}</div>
-            </div>
-            {isOwner() && (
-              <div>
-                <button onClick={() => setEditing((s) => !s)} className="text-sm text-blue-600">
-                  {editing ? 'Cancel' : 'Edit'}
-                </button>
+                </div>
+                <div className="flex-1">
+                  <h1 className="text-4xl font-bold text-gray-900 mb-2">{profile.name || profile.user?.email}</h1>
+                  <p className="text-lg text-blue-600 font-medium mb-2">{profile.specialization || 'Mental Health Professional'}</p>
+                  <div className="text-gray-600 flex items-center gap-2 mb-4">
+                    📍 {profile.location || 'Location not specified'}
+                  </div>
+                  {profile.bio && <p className="text-gray-700 leading-relaxed">{profile.bio}</p>}
+                  {isOwner() && (
+                    <button onClick={() => setEditing((s) => !s)} className="mt-6 px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
+                      {editing ? '✓ Cancel' : '🔧 Edit Profile'}
+                    </button>
+                  )}
+                </div>
               </div>
-            )}
-          </div>
 
               {editing && (
-            <form onSubmit={handleSave} className="mt-4 flex flex-col gap-2">
-              <label className="flex flex-col">
-                <span className="text-sm text-gray-600">Profile image</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files && e.target.files[0]
-                    if (!file) return
-                    if (file.size > 2 * 1024 * 1024) {
-                      setError('Image must be under 2MB')
-                      return
-                    }
-                    const reader = new FileReader()
-                    reader.onload = () => {
-                      setError(null)
-                      setAvatarPreview(String(reader.result))
-                    }
-                    reader.readAsDataURL(file)
-                  }}
-                  className="mt-2"
-                />
-              </label>
-              <input className="border p-2 rounded" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" />
-              <input className="border p-2 rounded" value={form.specialization} onChange={(e) => setForm({ ...form, specialization: e.target.value })} placeholder="Specialization" />
-              <input className="border p-2 rounded" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Location" />
-              <textarea className="border p-2 rounded" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Bio" />
-              <div className="flex gap-2">
-                <button type="submit" className="bg-green-600 text-white py-2 px-4 rounded" disabled={loading}>
-                  Save
-                </button>
-                <button type="button" onClick={() => setEditing(false)} className="py-2 px-4 rounded border">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          )}
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-900 mb-6">Edit Your Profile</h2>
+                  <div className="mb-6 flex gap-6 items-start">
+                    <div className="flex-shrink-0">
+                      {avatarPreview ? (
+                        <img src={avatarPreview} alt="avatar" className="w-32 h-32 rounded-full object-cover border-4 border-green-400" />
+                      ) : (
+                        <div className="w-32 h-32 rounded-full bg-gray-100 flex items-center justify-center text-gray-400">No image</div>
+                      )}
+                    </div>
+                  </div>
+                  <form onSubmit={handleSave} className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Change Profile Image</label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files && e.target.files[0]
+                          if (!file) return
+                          if (file.size > 2 * 1024 * 1024) {
+                            setError('Image must be under 2MB')
+                            return
+                          }
+                          const reader = new FileReader()
+                          reader.onload = () => {
+                            setError(null)
+                            setAvatarPreview(String(reader.result))
+                          }
+                          reader.readAsDataURL(file)
+                        }}
+                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                      <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Your full name" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
+                      <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" value={form.specialization} onChange={(e) => setForm({ ...form, specialization: e.target.value })} placeholder="e.g., Clinical Psychology, Psychiatry" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                      <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="City, Country" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                      <textarea className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition resize-none" rows={4} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Tell us about yourself, your experience, and approach..." />
+                    </div>
+                    <div className="flex gap-3 pt-4">
+                      <button type="submit" className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50" disabled={loading}>
+                        {loading ? 'Saving...' : '💾 Save Changes'}
+                      </button>
+                      <button type="button" onClick={() => setEditing(false)} className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition">
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       ) : (
-        <div className="mt-4 bg-white p-4 border rounded">
-          <div className="text-sm text-gray-700">Profile not found.</div>
+        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-8 max-w-2xl">
+          <div className="text-gray-700 mb-4">Profile not found.</div>
           {user && user.sub === id && (
-            <div className="mt-3">
-              <div className="text-sm text-gray-600">You don't have a profile yet. Create one:</div>
-              <form onSubmit={handleSave} className="mt-3 flex flex-col gap-2">
-                <input className="border p-2 rounded" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Name" />
-                <input className="border p-2 rounded" value={form.specialization} onChange={(e) => setForm({ ...form, specialization: e.target.value })} placeholder="Specialization" />
-                <input className="border p-2 rounded" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Location" />
-                <textarea className="border p-2 rounded" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Bio" />
-                <div className="flex gap-2">
-                  <button type="submit" className="bg-green-600 text-white py-2 px-4 rounded" disabled={loading}>
-                    Create profile
-                  </button>
+            <div>
+              <div className="text-gray-600 mb-6">You don't have a profile yet. Create one to get started:</div>
+              <form onSubmit={handleSave} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                  <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Your full name" />
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Specialization</label>
+                  <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" value={form.specialization} onChange={(e) => setForm({ ...form, specialization: e.target.value })} placeholder="Your specialization" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                  <input className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="City, Country" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+                  <textarea className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition" rows={3} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} placeholder="Tell us about yourself..." />
+                </div>
+                <button type="submit" className="w-full px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-lg font-medium hover:shadow-lg transition disabled:opacity-50" disabled={loading}>
+                  {loading ? 'Creating...' : '✅ Create Profile'}
+                </button>
               </form>
             </div>
           )}

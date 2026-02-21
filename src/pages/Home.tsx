@@ -33,37 +33,45 @@ export default function Home() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Welcome to Kashf</h1>
-      <p className="mt-2 text-gray-600">Platform connecting psychiatric professionals and patients.</p>
-
-      <div className="mt-6 flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Featured Professionals</h2>
-        <Link to="/search" className="text-sm text-blue-600">See all</Link>
+      <div className="mb-12">
+        <h1 className="text-4xl font-bold text-gray-900 mb-3">Welcome to Kashf</h1>
+        <p className="text-lg text-gray-600">Connecting you with qualified psychiatric professionals for personalized mental health care.</p>
       </div>
 
-      {loading && <div className="mt-4">Loading...</div>}
-      {error && <div className="mt-4 text-red-600">{error}</div>}
+      <div className="mb-8 flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">Featured Professionals</h2>
+        <Link to="/search" className="text-blue-600 hover:text-blue-700 font-medium transition">Browse all →</Link>
+      </div>
 
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {loading && <div className="text-center py-12 text-gray-500">Loading professionals...</div>}
+      {error && <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">{error}</div>}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {results.map((u) => (
-          <div key={u.id} className="p-4 bg-white border rounded flex gap-4 items-center">
-            {u.profile?.avatarUrl ? (
-              <img src={u.profile.avatarUrl} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
-            ) : (
-              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-sm text-gray-500">No Image</div>
-            )}
-            <div className="flex-1">
-              <div className="font-semibold">{u.profile?.name || u.email}</div>
-              <div className="text-sm text-gray-600">{u.profile?.specialization}</div>
-              <div className="text-sm text-gray-500">{u.profile?.location}</div>
-            </div>
-            <div>
-              <Link to={`/profile/${u.profile?.id || u.id}`} className="text-sm text-blue-600">View profile</Link>
+          <div key={u.id} className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow border border-gray-200 overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-start gap-4 mb-4">
+                {u.profile?.avatarUrl ? (
+                  <img src={u.profile.avatarUrl} alt="avatar" className="w-16 h-16 rounded-full object-cover flex-shrink-0" />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-sm text-gray-500 flex-shrink-0">—</div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-900 truncate">{u.profile?.name || u.email}</div>
+                  <div className="text-sm text-blue-600 font-medium">{u.profile?.specialization || 'Mental Health Professional'}</div>
+                </div>
+              </div>
+              <div className="text-sm text-gray-600 mb-4 text-center">
+                📍 {u.profile?.location || 'Location TBD'}
+              </div>
+              <Link to={`/profile/${u.profile?.id || u.id}`} className="w-full inline-block text-center bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition">
+                View Profile
+              </Link>
             </div>
           </div>
         ))}
-        {results.length === 0 && !loading && <div className="text-sm text-gray-600">No professionals found yet.</div>}
       </div>
+      {results.length === 0 && !loading && <div className="text-center py-12 text-gray-500">No professionals available yet. Check back soon!</div>}
     </div>
   )
 }

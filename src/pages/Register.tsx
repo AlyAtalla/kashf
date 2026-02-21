@@ -38,34 +38,47 @@ export default function Register() {
   }
 
   return (
-    <div className="max-w-md">
-      <h2 className="text-xl font-semibold">Create account</h2>
-      <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
-        <input
-          className="border p-2 rounded"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          type="email"
-          required
-        />
-        <input
-          className="border p-2 rounded"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          type="password"
-          required
-        />
-        <select className="border p-2 rounded" value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="PATIENT">Patient</option>
-          <option value="PROFESSIONAL">Professional</option>
-        </select>
-        {error && <div className="text-red-600">{error}</div>}
-        <button className="bg-green-600 text-white py-2 rounded disabled:opacity-50" disabled={loading} type="submit">
-          {loading ? 'Creating...' : 'Create account'}
-        </button>
-      </form>
+    <div className="min-h-[calc(100vh-200px)] flex items-center justify-center">
+      <div className="w-full max-w-md bg-white rounded-xl shadow-xl p-8 border border-gray-200">
+        <h2 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
+        <p className="text-gray-600 text-sm mb-6">Join our platform to find the right professional</p>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Email address</label>
+            <input
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              placeholder="you@example.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <input
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">I am a</label>
+            <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition" value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="PATIENT">👤 Patient - Looking for a professional</option>
+              <option value="PROFESSIONAL">👨‍⚕️ Professional - Mental health expert</option>
+            </select>
+          </div>
+          {error && <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">{error}</div>}
+          <button className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-2.5 rounded-lg font-medium disabled:opacity-50 hover:shadow-lg transition mt-6" disabled={loading} type="submit">
+            {loading ? 'Creating...' : 'Create account'}
+          </button>
+        </form>
+        <p className="text-center text-sm text-gray-600 mt-6">Already have an account? <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium">Sign in</a></p>
+      </div>
     </div>
   )
 }
