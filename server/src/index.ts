@@ -5,6 +5,7 @@ import dotenv from 'dotenv'
 
 import healthRouter from './routes/health'
 import authRouter from './routes/auth'
+import profilesRouter from './routes/profiles'
 
 dotenv.config()
 
@@ -17,6 +18,7 @@ app.use(express.json())
 
 app.use('/health', healthRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/profiles', profilesRouter)
 
 app.listen(port, () => {
   // eslint-disable-next-line no-console
