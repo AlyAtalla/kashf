@@ -5,6 +5,7 @@ import Search from './pages/Search'
 import Profile from './pages/Profile'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import Me from './pages/Me'
 import auth from './lib/auth'
 
 export default function App() {
@@ -40,6 +41,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             {user ? (
               <>
+                <Link to="/me" className="text-sm text-gray-700">My profile</Link>
                 <span className="text-sm text-gray-700">{user.role || 'user'}</span>
                 <button onClick={handleLogout} className="text-sm text-red-600">
                   Logout
@@ -63,6 +65,7 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
           <Route path="/profile/:id" element={<Profile />} />
+          <Route path="/me" element={<Me />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

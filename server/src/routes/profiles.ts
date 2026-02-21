@@ -21,14 +21,24 @@ router.post('/', async (req, res) => {
   }
 })
 
-// Get profile by profile id
+// Get profile by profile id or by user id
 router.get('/:id', async (req, res) => {
   const { id } = req.params
   try {
-    const profile = await prisma.profile.findUnique({
+    // First try to find by profile id
+    let profile = await prisma.profile.findUnique({
       where: { id },
       include: { user: { select: { id: true, email: true, role: true } } }
     })
+
+    // If not found, allow using a user id to fetch the profile (frontend may pass user id)
+    if (!profile) {
+      profile = await prisma.profile.findUnique({
+        where: { userId: id },
+        include: { user: { select: { id: true, email: true, role: true } } }
+      })
+    }
+
     if (!profile) return res.status(404).json({ error: 'not found' })
     res.json(profile)
   } catch (err) {
