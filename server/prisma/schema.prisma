@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  PROFESSIONAL
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(PATIENT)
+  createdAt DateTime @default(now())
+  profile   Profile?
+  messagesFrom Message[] @relation("fromMessages")
+  messagesTo   Message[] @relation("toMessages")
+  appointmentsAsPatient     Appointment[] @relation("patientAppointments")
+  appointmentsAsProfessional Appointment[] @relation("professionalAppointments")
+}
+
+model Profile {
+  id            String @id @default(cuid())
+  userId        String @unique
+  user          User   @relation(fields: [userId], references: [id])
+  name          String?
+  bio           String?
+  specialization String?
+  location      String?
+}
+
+model Appointment {
+  id             String   @id @default(cuid())
+  patientId      String
+  professionalId String
+  patient        User     @relation("patientAppointments", fields: [patientId], references: [id])
+  professional   User     @relation("professionalAppointments", fields: [professionalId], references: [id])
+  scheduledAt    DateTime
+  status         String   @default("scheduled")
+  createdAt      DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  fromId    String
+  toId      String
+  from      User     @relation("fromMessages", fields: [fromId], references: [id])
+  to        User     @relation("toMessages", fields: [toId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
