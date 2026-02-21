@@ -20,7 +20,7 @@ app.use('/health', healthRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/profiles', profilesRouter)
 
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   // eslint-disable-next-line no-console
   console.log(`Server running on http://localhost:${port}`)
 })

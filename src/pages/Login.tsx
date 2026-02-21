@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../lib/api'
-import auth from '../lib/auth'
+import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -9,6 +9,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
+  const { loginWithToken } = useAuth()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -17,7 +18,7 @@ export default function Login() {
     try {
       const data = await api.post('/api/auth/login', { email, password })
       if (data?.token) {
-        auth.setToken(data.token)
+        loginWithToken(data.token)
         navigate('/')
       } else {
         setError('Invalid response from server')

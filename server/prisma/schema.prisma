@@ -3,21 +3,15 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-enum Role {
-  PATIENT
-  PROFESSIONAL
-  ADMIN
 }
 
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
-  role      Role     @default(PATIENT)
+  role      String   @default("PATIENT")
   createdAt DateTime @default(now())
   profile   Profile?
   messagesFrom Message[] @relation("fromMessages")
