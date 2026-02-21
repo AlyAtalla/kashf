@@ -46,11 +46,18 @@ export default function Home() {
 
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {results.map((u) => (
-          <div key={u.id} className="p-4 bg-white border rounded">
-            <div className="font-semibold">{u.profile?.name || u.email}</div>
-            <div className="text-sm text-gray-600">{u.profile?.specialization}</div>
-            <div className="text-sm text-gray-500">{u.profile?.location}</div>
-            <div className="mt-3">
+          <div key={u.id} className="p-4 bg-white border rounded flex gap-4 items-center">
+            {u.profile?.avatarUrl ? (
+              <img src={u.profile.avatarUrl} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-sm text-gray-500">No Image</div>
+            )}
+            <div className="flex-1">
+              <div className="font-semibold">{u.profile?.name || u.email}</div>
+              <div className="text-sm text-gray-600">{u.profile?.specialization}</div>
+              <div className="text-sm text-gray-500">{u.profile?.location}</div>
+            </div>
+            <div>
               <Link to={`/profile/${u.profile?.id || u.id}`} className="text-sm text-blue-600">View profile</Link>
             </div>
           </div>

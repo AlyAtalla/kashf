@@ -28,6 +28,7 @@ model Profile {
   bio           String?
   specialization String?
   location      String?
+  avatarUrl     String?
 }
 
 model Appointment {

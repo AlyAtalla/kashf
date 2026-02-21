@@ -5,13 +5,13 @@ const router = Router()
 
 // Create or update a profile. Expects { userId, name?, bio?, specialization?, location? }
 router.post('/', async (req, res) => {
-  const { userId, name, bio, specialization, location } = req.body
+  const { userId, name, bio, specialization, location, avatarUrl } = req.body
   if (!userId) return res.status(400).json({ error: 'userId is required' })
   try {
     const profile = await prisma.profile.upsert({
       where: { userId },
-      create: { userId, name, bio, specialization, location },
-      update: { name, bio, specialization, location }
+      create: { userId, name, bio, specialization, location, avatarUrl },
+      update: { name, bio, specialization, location, avatarUrl }
     })
     res.json(profile)
   } catch (err) {
