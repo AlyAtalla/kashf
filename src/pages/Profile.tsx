@@ -24,6 +24,13 @@ export default function Profile() {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: '', bio: '', specialization: '', location: '', pricePerSession: '' })
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [showMessageModal, setShowMessageModal] = useState(false)
+  const [showBookingModal, setShowBookingModal] = useState(false)
+  const [messages, setMessages] = useState<any[]>([])
+  const [newMessage, setNewMessage] = useState('')
+  const [isFavorited, setIsFavorited] = useState(false)
+  const [scheduledAt, setScheduledAt] = useState('')
+  const [bookingError, setBookingError] = useState<string | null>(null)
 
 
   useEffect(() => {
@@ -88,6 +95,86 @@ export default function Profile() {
     }
   }
 
+  useEffect(() => {
+    if (!profile) return
+    try {
+      const favs = JSON.parse(localStorage.getItem('kashf:favourites') || '[]') as string[]
+      setIsFavorited(Boolean(profile.user && favs.includes(profile.user.id)))
+    } catch {
+      setIsFavorited(false)
+    }
+  }, [profile])
+
+  function toggleFavourite() {
+    if (!profile?.user?.id) return
+    try {
+      const key = 'kashf:favourites'
+      const favs = JSON.parse(localStorage.getItem(key) || '[]') as string[]
+      if (favs.includes(profile.user.id)) {
+        const next = favs.filter((id) => id !== profile.user.id)
+        localStorage.setItem(key, JSON.stringify(next))
+        setIsFavorited(false)
+      } else {
+        favs.push(profile.user.id)
+        localStorage.setItem(key, JSON.stringify(favs))
+        setIsFavorited(true)
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  async function openMessageModal() {
+    if (!user) return navigate('/login')
+    if (!profile?.user?.id) return
+    setShowMessageModal(true)
+    try {
+      const res = await api.get(`/api/messages/conversation/${user.sub}/${profile.user.id}`)
+      setMessages(res || [])
+    } catch (err: any) {
+      // ignore for now
+    }
+  }
+
+  async function sendMessage() {
+    if (!user || !profile?.user?.id) return
+    if (!newMessage.trim()) return
+    try {
+      const created = await api.post('/api/messages', { fromId: user.sub, toId: profile.user.id, content: newMessage })
+      setMessages((m) => [...m, created])
+      setNewMessage('')
+    } catch (err: any) {
+      // ignore
+    }
+  }
+
+  function openBooking() {
+    if (!user) return navigate('/login')
+    if (!profile?.user) return
+    // Client-side quick check for dummy/test accounts (seed uses @kashf.com)
+    if ((profile.user.email || '').endsWith('@kashf.com')) {
+      setBookingError('This is a dummy/test account and cannot accept bookings.')
+      setShowBookingModal(true)
+      return
+    }
+    setBookingError(null)
+    setShowBookingModal(true)
+  }
+
+  async function submitBooking() {
+    if (!user || !profile?.user?.id || !scheduledAt) return
+    try {
+      const res = await api.post('/api/appointments', { patientId: user.sub, professionalId: profile.user.id, scheduledAt })
+      // success: close modal
+      setShowBookingModal(false)
+      setScheduledAt('')
+      alert('Appointment scheduled')
+    } catch (err: any) {
+      if (err?.message) setBookingError(err.message)
+      else setBookingError('Failed to schedule')
+    }
+  }
+
   return (
     <div>
       {loading && <div className="text-center py-12 text-gray-500">Loading profile...</div>}
@@ -117,22 +204,73 @@ export default function Profile() {
                       <p className="text-sm font-semibold text-green-800">💰 ${profile.pricePerSession}/session</p>
                     </div>
                   )}
-                  <div className="mt-6 flex gap-3">
+                  <div className="mt-6 flex gap-3 items-center">
                     {isOwner() ? (
                       <button onClick={() => setEditing((s) => !s)} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
                         {editing ? '✓ Cancel' : '🔧 Edit Profile'}
                       </button>
                     ) : (
                       <>
-                        <button onClick={() => alert('Message feature coming soon!')} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition">
+                        <button onClick={openMessageModal} className="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition">
                           💬 Message
                         </button>
-                        <button onClick={() => alert('Booking feature coming soon!')} className="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition">
+                        <button onClick={openBooking} className="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition">
                           📅 Book Session
+                        </button>
+                        <button onClick={toggleFavourite} className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50">
+                          {isFavorited ? '♥ Favourited' : '♡ Add to favourites'}
                         </button>
                       </>
                     )}
                   </div>
+
+                  {/* Message Modal */}
+                  {showMessageModal && (
+                    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-40">
+                      <div className="bg-white max-w-xl w-full rounded-lg shadow-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-bold">Conversation with {profile.name || profile.user?.email}</h3>
+                          <button onClick={() => setShowMessageModal(false)} className="text-gray-500">Close</button>
+                        </div>
+                        <div className="h-64 overflow-auto p-2 border rounded mb-3">
+                          {messages.map((m) => (
+                            <div key={m.id} className={`mb-2 ${m.fromId === user?.sub ? 'text-right' : 'text-left'}`}>
+                              <div className={`inline-block px-3 py-2 rounded ${m.fromId === user?.sub ? 'bg-green-100' : 'bg-gray-100'}`}>{m.content}</div>
+                              <div className="text-xs text-gray-400">{new Date(m.createdAt).toLocaleString()}</div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="flex gap-2">
+                          <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message" className="flex-1 px-3 py-2 border rounded" />
+                          <button onClick={sendMessage} className="px-4 py-2 bg-blue-600 text-white rounded">Send</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Booking Modal */}
+                  {showBookingModal && (
+                    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-40">
+                      <div className="bg-white max-w-md w-full rounded-lg shadow-lg p-6">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="font-bold">Book Session with {profile.name || profile.user?.email}</h3>
+                          <button onClick={() => { setShowBookingModal(false); setBookingError(null); setScheduledAt('') }} className="text-gray-500">Close</button>
+                        </div>
+                        {bookingError ? (
+                          <div className="p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded mb-4">{bookingError}</div>
+                        ) : (
+                          <div className="space-y-3">
+                            <label className="block text-sm text-gray-700">Choose date & time</label>
+                            <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} className="w-full px-3 py-2 border rounded" />
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => { setShowBookingModal(false); setScheduledAt('') }} className="px-4 py-2 border rounded">Cancel</button>
+                              <button onClick={submitBooking} className="px-4 py-2 bg-green-600 text-white rounded">Confirm</button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 

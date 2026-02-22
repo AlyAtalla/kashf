@@ -6,6 +6,8 @@ import dotenv from 'dotenv'
 import healthRouter from './routes/health'
 import authRouter from './routes/auth'
 import profilesRouter from './routes/profiles'
+import messagesRouter from './routes/messages'
+import appointmentsRouter from './routes/appointments'
 
 dotenv.config()
 
@@ -19,6 +21,8 @@ app.use(express.json({ limit: '10mb' }))
 app.use('/health', healthRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/profiles', profilesRouter)
+app.use('/api/messages', messagesRouter)
+app.use('/api/appointments', appointmentsRouter)
 
 app.listen(port, '0.0.0.0', () => {
   // eslint-disable-next-line no-console
