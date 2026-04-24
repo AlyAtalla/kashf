@@ -39,7 +39,27 @@ router.get('/:id', async (req, res) => {
       })
     }
 
-    if (!profile) return res.status(404).json({ error: 'not found' })
+    // If there is no profile yet, return a lightweight user fallback so messaging still works
+    if (!profile) {
+      const user = await prisma.user.findUnique({
+        where: { id },
+        select: { id: true, email: true, role: true }
+      })
+      if (!user) return res.status(404).json({ error: 'not found' })
+
+      profile = {
+        id: user.id,
+        userId: user.id,
+        user,
+        name: null,
+        bio: null,
+        specialization: null,
+        location: null,
+        avatarUrl: null,
+        pricePerSession: null
+      } as any
+    }
+
     res.json(profile)
   } catch (err) {
     // eslint-disable-next-line no-console

@@ -6,13 +6,14 @@ import { useNavigate } from 'react-router-dom'
 
 type ProfileData = {
   id: string
-  name?: string
-  bio?: string
-  specialization?: string
-  location?: string
-  avatarUrl?: string
-  pricePerSession?: number
-  user?: { id: string; email: string }
+  userId?: string
+  name?: string | null
+  bio?: string | null
+  specialization?: string | null
+  location?: string | null
+  avatarUrl?: string | null
+  pricePerSession?: number | null
+  user?: { id: string; email: string; role?: string }
 }
 
 export default function Profile() {
@@ -233,12 +234,16 @@ export default function Profile() {
                           <button onClick={() => setShowMessageModal(false)} className="text-gray-500">Close</button>
                         </div>
                         <div className="h-64 overflow-auto p-2 border rounded mb-3">
-                          {messages.map((m) => (
-                            <div key={m.id} className={`mb-2 ${m.fromId === user?.sub ? 'text-right' : 'text-left'}`}>
-                              <div className={`inline-block px-3 py-2 rounded ${m.fromId === user?.sub ? 'bg-green-100' : 'bg-gray-100'}`}>{m.content}</div>
-                              <div className="text-xs text-gray-400">{new Date(m.createdAt).toLocaleString()}</div>
-                            </div>
-                          ))}
+                          {messages.length === 0 ? (
+                            <div className="text-sm text-gray-500">No messages yet. Start the conversation.</div>
+                          ) : (
+                            messages.map((m) => (
+                              <div key={m.id} className={`mb-2 ${m.fromId === user?.sub ? 'text-right' : 'text-left'}`}>
+                                <div className={`inline-block px-3 py-2 rounded ${m.fromId === user?.sub ? 'bg-green-100' : 'bg-gray-100'}`}>{m.content}</div>
+                                <div className="text-xs text-gray-400">{new Date(m.createdAt).toLocaleString()}</div>
+                              </div>
+                            ))
+                          )}
                         </div>
                         <div className="flex gap-2">
                           <input value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message" className="flex-1 px-3 py-2 border rounded" />

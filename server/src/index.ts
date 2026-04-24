@@ -12,7 +12,7 @@ import appointmentsRouter from './routes/appointments'
 dotenv.config()
 
 const app = express()
-const port = process.env.PORT || 4000
+const port = parseInt(process.env.PORT || '', 10) || 4000
 
 app.use(helmet())
 app.use(cors())

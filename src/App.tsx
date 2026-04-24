@@ -1,28 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Routes, Route, Link, useNavigate } from 'react-router-dom'
 import Home from './pages/Home'
 import Search from './pages/Search'
 import Profile from './pages/Profile'
+import Messages from './pages/Messages'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Me from './pages/Me'
-import auth from './lib/auth'
+import { useAuth } from './context/AuthContext'
 
 export default function App() {
-  const [user, setUser] = useState<any | null>(null)
+  const { user, logout } = useAuth()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const token = auth.getToken()
-    if (token) {
-      const payload = auth.decodeToken(token)
-      setUser(payload || null)
-    }
-  }, [])
-
   function handleLogout() {
-    auth.clearToken()
-    setUser(null)
+    logout()
     navigate('/login')
   }
 
@@ -42,6 +34,7 @@ export default function App() {
             {user ? (
               <>
                 <Link to="/me" className="text-sm text-blue-100 hover:text-white transition">My profile</Link>
+                <Link to="/messages" className="text-sm text-blue-100 hover:text-white transition">Messages</Link>
                 <span className="text-sm text-blue-100 font-medium">{user.role === 'PROFESSIONAL' ? '👨‍⚕️ Professional' : '👤 Patient'}</span>
                 <button onClick={handleLogout} className="text-sm text-blue-100 hover:text-red-300 transition font-medium">
                   Logout
@@ -64,6 +57,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
+          <Route path="/messages" element={<Messages />} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/me" element={<Me />} />
           <Route path="/login" element={<Login />} />
