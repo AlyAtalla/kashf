@@ -9,6 +9,17 @@ router.post('/', async (req, res) => {
   if (!fromId || !toId || !content) return res.status(400).json({ error: 'missing fields' })
   try {
     const msg = await prisma.message.create({ data: { fromId, toId, content } })
+    
+    // Emit notification to the recipient
+    const io = req.app.get('io')
+    io.to(`user:${toId}`).emit('newMessage', {
+      id: msg.id,
+      fromId,
+      toId,
+      content,
+      createdAt: msg.createdAt
+    })
+    
     res.json(msg)
   } catch (err) {
     // eslint-disable-next-line no-console

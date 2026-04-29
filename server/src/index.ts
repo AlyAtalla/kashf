@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import dotenv from 'dotenv'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 
 import healthRouter from './routes/health'
 import authRouter from './routes/auth'
@@ -12,6 +14,17 @@ import appointmentsRouter from './routes/appointments'
 dotenv.config()
 
 const app = express()
+const httpServer = createServer(app)
+const io = new Server(httpServer, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST']
+  }
+})
+
+// Make io accessible to routes
+app.set('io', io)
+
 const port = parseInt(process.env.PORT || '', 10) || 4000
 
 app.use(helmet())
@@ -24,7 +37,25 @@ app.use('/api/profiles', profilesRouter)
 app.use('/api/messages', messagesRouter)
 app.use('/api/appointments', appointmentsRouter)
 
-app.listen(port, '0.0.0.0', () => {
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+  // eslint-disable-next-line no-console
+  console.log('Client connected:', socket.id)
+
+  // Join a room for a specific user
+  socket.on('join', (userId: string) => {
+    socket.join(`user:${userId}`)
+    // eslint-disable-next-line no-console
+    console.log(`User ${userId} joined room`)
+  })
+
+  socket.on('disconnect', () => {
+    // eslint-disable-next-line no-console
+    console.log('Client disconnected:', socket.id)
+  })
+})
+
+httpServer.listen(port, '0.0.0.0', () => {
   // eslint-disable-next-line no-console
   console.log(`Server running on http://localhost:${port}`)
 })

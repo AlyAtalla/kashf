@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import auth from '../lib/auth'
+import { connectSocket, disconnectSocket } from '../lib/socket'
 
 type AuthContextType = {
   user: any | null
@@ -14,15 +15,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const token = auth.getToken()
-    if (token) setUser(auth.decodeToken(token))
+    if (token) {
+      const decoded = auth.decodeToken(token)
+      setUser(decoded)
+      connectSocket(decoded.id)
+    }
   }, [])
 
   function loginWithToken(token: string) {
     auth.setToken(token)
-    setUser(auth.decodeToken(token))
+    const decoded = auth.decodeToken(token)
+    setUser(decoded)
+    connectSocket(decoded.id)
   }
 
   function logout() {
+    disconnectSocket()
     auth.clearToken()
     setUser(null)
   }

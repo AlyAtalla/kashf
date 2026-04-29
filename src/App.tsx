@@ -8,8 +8,10 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Me from './pages/Me'
 import { useAuth } from './context/AuthContext'
+import { NotificationProvider } from './context/NotificationContext'
+import NotificationToast from './components/NotificationToast'
 
-export default function App() {
+function AppContent() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -64,6 +66,15 @@ export default function App() {
           <Route path="/register" element={<Register />} />
         </Routes>
       </main>
+      <NotificationToast />
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <NotificationProvider>
+      <AppContent />
+    </NotificationProvider>
   )
 }
